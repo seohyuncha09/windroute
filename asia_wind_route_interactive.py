@@ -14,7 +14,15 @@ import pandas as pd
 import xarray as xr
 from scipy.interpolate import RegularGridInterpolator
 
-DATA_FILE = Path(__file__).with_name("26a1fb3fbce4fd258e932986267c23fb.nc")
+from huggingface_hub import hf_hub_download
+
+DATA_FILE = hf_hub_download(
+    repo_id="seohyuncha09/era5-wind-data",
+    filename="26a1fb3fbce4fd258e932986267c23fb.nc",
+    repo_type="dataset"
+)
+
+ds = xr.open_dataset(DATA_FILE)
 TIME_INDEX = 12
 PRESSURE_LEVELS = [300, 250, 200]
 TAS_MPS = 230.0
