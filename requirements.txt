@@ -1,0 +1,8 @@
+streamlit>=1.40
+xarray
+netCDF4
+numpy
+pandas
+scipy
+plotly
+huggingface_hub
