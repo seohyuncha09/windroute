@@ -1,28 +1,34 @@
 """ERA5 바람장 + 사용자 지정 항로 시각화 (교육용)
 
 설치:
-    py -m pip install xarray netCDF4 numpy pandas scipy plotly
+    py -m pip install xarray netCDF4 numpy pandas scipy plotly huggingface_hub
 
 실행:
-    .py와 .nc 파일을 같은 폴더에 두고 실행합니다.
+    이 Python 파일만 있으면 됩니다. ERA5 파일은 Hugging Face에서 자동으로 내려받습니다.
     출발지/도착지 위도·경도를 입력하면 항로를 다시 계산합니다.
 """
 from pathlib import Path
+from huggingface_hub import hf_hub_download
 import heapq
 import numpy as np
 import pandas as pd
 import xarray as xr
 from scipy.interpolate import RegularGridInterpolator
 
-from huggingface_hub import hf_hub_download
+DATASET_REPO = "seohyuncha09/era5-wind-data"
+DATASET_FILENAME = "26a1fb3fbce4fd258e932986267c23fb.nc"
 
-DATA_FILE = hf_hub_download(
-    repo_id="seohyuncha09/era5-wind-data",
-    filename="26a1fb3fbce4fd258e932986267c23fb.nc",
-    repo_type="dataset"
-)
+def download_era5_file():
+    """Hugging Face Dataset에서 ERA5 파일을 가져옵니다.
+    최초 실행 시 다운로드하고, 이후에는 로컬 캐시를 재사용합니다.
+    """
+    return Path(hf_hub_download(
+        repo_id=DATASET_REPO,
+        filename=DATASET_FILENAME,
+        repo_type="dataset"
+    ))
 
-ds = xr.open_dataset(DATA_FILE)
+DATA_FILE = download_era5_file()
 TIME_INDEX = 12
 PRESSURE_LEVELS = [300, 250, 200]
 TAS_MPS = 230.0
@@ -124,7 +130,6 @@ def path_metrics(path, u, v, lats, lons):
 
 
 def main():
-    if not DATA_FILE.exists(): raise FileNotFoundError(f"데이터 파일이 없습니다: {DATA_FILE}")
     try:
         import plotly.graph_objects as go
     except ImportError as e:
@@ -220,3 +225,4 @@ def main():
 
 if __name__=='__main__':
     main()
+
